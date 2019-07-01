@@ -20,6 +20,7 @@ typedef struct UserInf
 	int exsit = 0;	//用户是否存在(0不存在 1存在)
 	struct UserInf* next;
 }UserLink;
+UserLink* head_UserLink = (UserLink*)malloc(sizeof(UserLink));
 
 typedef struct MedcineInf
 {
@@ -30,7 +31,7 @@ typedef struct MedcineInf
 	struct MedcineInf* next;
 }MedcineLink;
 
-UserLink* UserInfReadF();
+int UserInfReadF();
 int UserInfSaveF(UserLink* User);
 int UserInfSave_All_F();
 
@@ -39,7 +40,6 @@ void RegisterF();
 void FindPassword(UserLink* User);
 
 void UserSystem(int UserIndex);
-
 
 int main()
 {
@@ -72,29 +72,33 @@ int main()
 	return 0;
 }
 
-UserLink* UserInfReadF()
+int UserInfReadF()
 {
-	UserLink* head = (UserLink*)malloc(sizeof(UserLink));
-	UserLink* p, * q;
+	
+	UserLink* head = head_UserLink;
+	UserLink* q;
+	UserLink* p;
 	p = q = head;
 	FILE* fp = fopen("UserInf.hsp", "r");
 	if (fp == NULL)
 	{
 		printf("文件打开失败\n");
-		return NULL;
+		return 1;
 	}
 	while (!feof(fp))
 	{
 		q = (UserLink*)malloc(sizeof(UserLink));
-		fscanf(fp, "%d", &q->User_Number);
-		fscanf(fp, "%s", &q->User_Name);
-		fscanf(fp, "%s", &q->User_Password);
-		fscanf(fp, "%s", &q->User_Email);
-		fscanf(fp, "%d", &q->exsit);
+		fscanf(fp, "%d", &p->User_Number);
+		fscanf(fp, "%s", p->User_Name);
+		fscanf(fp, "%s", &p->User_Password);
+		fscanf(fp, "%s", p->User_Email);
+		fscanf(fp, "%d", &p->exsit);
+		p->next = q;
+		p = q;
 	}
 	p->next = NULL;
+	free(p);
 	return 0;
-
 }
 
 int UserInfSaveF(UserLink* User)
@@ -147,19 +151,20 @@ int UserInfSave_All_F()
 
 void LoginF()	//登录函数
 {
+
 	int i = 0;
 	char Input_Account[20], Input_Password[20];	//用户输入的账号和密码
-	UserLink* head = (UserLink*)malloc(sizeof(UserLink));
-	UserLink* p_mov = head;
 	printf("请输入用户名和密码\n");
 
 	printf("账号：");
 	scanf("%s", Input_Account);
 
+	UserLink* p_mov;
+	p_mov = head_UserLink;
 
 CheckName:
 	printf("验证中，请稍后...\n");
-
+	if(p_mov)
 	for (int i = 0; i < 100; i++)
 	{
 		if (strcmp(Input_Account, p_mov->User_Name) == 0)			//用户名正确
@@ -204,6 +209,7 @@ CheckName:
 
 			}
 		}
+		p_mov->next = (UserLink*)malloc(sizeof(UserLink));
 		p_mov = p_mov->next;
 	}
 }
